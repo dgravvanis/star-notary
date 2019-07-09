@@ -35,13 +35,16 @@ const App = {
     const { createStar } = this.meta.methods;
     const name = document.getElementById("starName").value;
     const id = document.getElementById("starId").value;
-    await createStar(name, id).send({from: this.account});
-    App.setStatus("New Star Owner is " + this.account + ".");
+    await createStar(name, id).send({from: ethereum.selectedAddress});
+    App.setStatus("New Star Owner is " + ethereum.selectedAddress + ".");
   },
 
   // Implement Task 4 Modify the front end of the DAPP
-  lookUp: async function (){
-    
+  lookUp: async function() {
+    const { lookUptokenIdToStarInfo } = this.meta.methods;
+    const id = document.getElementById("lookId").value;
+    let name = await lookUptokenIdToStarInfo(id).call();
+    App.setStatus("Star "+ id + ":" + name);
   }
 
 };
@@ -51,7 +54,7 @@ window.App = App;
 window.addEventListener("load", async function() {
   if (window.ethereum) {
     // use MetaMask's provider
-    App.web3 = new Web3(window.ethereum);
+    App.web3 = new Web3(window['ethereum'] || window.web3.currentProvider);
     await window.ethereum.enable(); // get permission to access accounts
   } else {
     console.warn("No web3 detected. Falling back to http://127.0.0.1:9545. You should remove this fallback when you deploy live",);
